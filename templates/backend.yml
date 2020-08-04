@@ -24,8 +24,7 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName:
           Ref: UrlShortenerLoggingBucket
-        LogFilePrefix:
-          Fn::Sub: logs
+        LogFilePrefix: s3logs
       WebsiteConfiguration:
         IndexDocument: base.redirect
         RoutingRules:
@@ -180,7 +179,7 @@ Resources:
         Enabled: true
         DefaultRootObject: base.redirect
         Logging:
-          Bucket: "UrlShortenerLoggingBucket"
+          Bucket: !Ref UrlShortenerLoggingBucket
           IncludeCookies: false
           Prefix: "cloudfront"
         DefaultCacheBehavior:
