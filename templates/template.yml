@@ -1,0 +1,289 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Creates S3 Bucket, Cloudfront Distribution and DNS record for URL Shortener.
+
+Parameters:
+  WebsiteName:
+    Type: String
+    Description: Enter the Amazon S3 bucket to use for the URL shortener.
+  HostedZoneID:
+    Type: AWS::Route53::HostedZone::Id
+    Description: The hosted zone for the domain.
+  CertificateArn:
+    Type: String
+    Description: The certificate ARN for the domain.
+
+Resources:
+  UrlShortenerBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName:
+        Ref: WebsiteName
+      LoggingConfiguration:
+        DestinationBucketName:
+          Ref: UrlShortenerLoggingBucket
+        LogFilePrefix:
+          Fn::Sub: logs
+      WebsiteConfiguration:
+        IndexDocument: base.redirect
+        RoutingRules:
+          - RedirectRule:
+              HostName:
+                Fn::Sub: ${WebsiteName}/notfound
+            RoutingRuleCondition:
+              HttpErrorCodeReturnedEquals: 404
+      LifecycleConfiguration:
+        Rules:
+          - Id: DisposeShortURLs31Days
+            ExpirationInDays: 31
+            Prefix: surl
+            Status: Enabled
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: 'surl/'
+            Function: !GetAtt CloudFrontHitLambda.Arn
+
+  UrlShortenerBucketPolicy:  # This makes the bucket publicly accessible
+    DependsOn: "UrlShortenerBucket"
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: "UrlShortenerBucket"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AddPerm
+            Effect: Allow
+            Principal: '*'
+            Action: s3:GetObject
+            Resource:
+              Fn::Sub: arn:aws:s3:::${UrlShortenerBucket}/*
+
+  UrlShortenerLoggingBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName:
+        Fn::Sub: logs.${WebsiteName}
+      AccessControl: LogDeliveryWrite
+      LifecycleConfiguration:
+        Rules:
+          - Id: Get Rid Of Old Logs.
+            ExpirationInDays: 7
+            Status: Enabled
+
+  LambdaCloudfrontPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn: CloudFrontHitLambda
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref CloudFrontHitLambda
+      Principal: s3.amazonaws.com
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: !GetAtt UrlShortenerBucket.Arn
+
+  CloudFrontHitLambdaRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      Policies:
+        -
+          PolicyName: URLShortenerCloudfrontHitRole
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: Allow
+                Action: "logs:*"
+                Resource: "arn:aws:logs:*:*:*"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+
+  CloudFrontHitLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Handler: index.lambda_handler
+      MemorySize: 256
+      Role: !GetAtt CloudFrontHitLambdaRole.Arn
+      Runtime: python3.6
+      Timeout: 10
+      Environment:
+        Variables:
+          S3_BUCKET_NAME: !Ref WebsiteName
+          S3_PREFIX: "surl/"
+      Code:
+        ZipFile: |
+          from urllib import request
+          import os
+
+          S3_PREFIX = os.environ['S3_PREFIX']
+          S3_BUCKET_NAME = os.environ['S3_BUCKET_NAME']
+
+          def lambda_handler(event, context):
+              key = event["Records"][0]["s3"]["object"]["key"].replace(S3_PREFIX, "")
+              request_url = "https://{0}/{1}".format(S3_BUCKET_NAME, key)
+              print("Starting Cache Request.")
+              url = request.urlopen(request_url)
+              print("Successfully loaded.\nFinalURL: {0}\nStatus Code: {1}\nRedirectTo: {2}\n".format(request_url, url.status, url.url))
+              print("Completed Cache Request.")
+              return
+
+  UrlShortenerBucketWWW:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      AccessControl: PublicRead
+      BucketName:
+        Fn::Sub: www.${UrlShortenerBucket}
+      WebsiteConfiguration:
+        RedirectAllRequestsTo:
+          HostName:
+            Ref: "UrlShortenerBucket"
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - "UrlShortenerBucket"
+      - "UrlShortenerLoggingBucket"
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - Ref: WebsiteName
+          - Ref: UrlShortenerBucketWWW
+        Origins:
+          - DomainName:
+              Fn::Select:
+                - 2
+                - Fn::Split:
+                    - /
+                    - Fn::GetAtt:
+                        - "UrlShortenerBucket"
+                        - WebsiteURL
+            Id: OriginRedirect
+            OriginPath: /surl
+            CustomOriginConfig:
+              HTTPPort: '80'
+              HTTPSPort: '443'
+              OriginProtocolPolicy: http-only
+        Comment: CloudFront distribution
+        Enabled: true
+        DefaultRootObject: base.redirect
+        Logging:
+          Bucket: "UrlShortenerLoggingBucket"
+          IncludeCookies: false
+          Prefix: "cloudfront"
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          ForwardedValues:
+            QueryString: false
+          TargetOriginId: OriginRedirect
+          ViewerProtocolPolicy: redirect-to-https
+        ViewerCertificate:
+          AcmCertificateArn:
+            Ref: CertificateArn
+          SslSupportMethod: sni-only
+
+  UrlShortenerRecordSetIpv4:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName:
+          Fn::GetAtt:
+            - CloudFrontDistribution
+            - DomainName
+        EvaluateTargetHealth: false
+        HostedZoneId: Z2FDTNDATAQYW2
+      Comment: Record set for the URL Shortner to cloudfront to S3 bucket for IPV4
+      HostedZoneId:
+        Ref: "HostedZoneID"
+      Name:
+        Ref: WebsiteName
+      Type: A
+
+  UrlShortenerRecordSetIpv6:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName:
+          Fn::GetAtt:
+            - CloudFrontDistribution
+            - DomainName
+        EvaluateTargetHealth: false
+        HostedZoneId: Z2FDTNDATAQYW2
+      Comment: Record set for the URL Shortner to cloudfront to S3 bucket for IPV6
+      HostedZoneId:
+        Ref: "HostedZoneID"
+      Name:
+        Ref: WebsiteName
+      Type: AAAA
+
+  UrlShortenerWWWRecordSetIpv4:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName:
+          Fn::GetAtt:
+            - CloudFrontDistribution
+            - DomainName
+        EvaluateTargetHealth: false
+        HostedZoneId: Z2FDTNDATAQYW2
+      Comment: Record set for the URL Shortner www redirect to cloudfront to S3 bucket for IPV4
+      HostedZoneId:
+        Ref: "HostedZoneID"
+      Name:
+        Ref: "UrlShortenerBucketWWW"
+      Type: A
+
+  UrlShortenerWWWRecordSetIpv6:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName:
+          Fn::GetAtt:
+            - CloudFrontDistribution
+            - DomainName
+        EvaluateTargetHealth: false
+        HostedZoneId: Z2FDTNDATAQYW2
+      Comment: Record set for the URL Shortner www redirect to cloudfront to S3 bucket for IPV6
+      HostedZoneId:
+        Ref: "HostedZoneID"
+      Name:
+        Ref: "UrlShortenerBucketWWW"
+      Type: AAAA
+
+Outputs:
+
+  S3BucketName:
+    Description: 'Amazon S3 bucket name holding short URLs redirect objects. Note:
+      the bucket will not be deleted when you delete this template.'
+    Value:
+      Ref: "UrlShortenerBucket"
+
+  CloudfrontEndpoint:
+    Value:
+      Fn::GetAtt:
+        - CloudFrontDistribution
+        - DomainName
+    Description: Endpoint for Cloudfront distribution
+
+  FullDomain:
+    Value:
+      Fn::Sub: https://${UrlShortenerBucket}
+    Description: Domain
+
+  WWWFullDomain:
+    Value:
+      Fn::Sub: https://${UrlShortenerBucketWWW}
+    Description: WWW Domain
