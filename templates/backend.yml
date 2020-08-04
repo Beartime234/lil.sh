@@ -15,7 +15,8 @@ Parameters:
 Resources:
   UrlShortenerBucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy: Retain
+    DependsOn:
+      - UrlShortenerLoggingBucket
     Properties:
       BucketName:
         Ref: WebsiteName
@@ -66,7 +67,6 @@ Resources:
 
   UrlShortenerLoggingBucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy: Retain
     Properties:
       BucketName:
         Fn::Sub: logs.${WebsiteName}
