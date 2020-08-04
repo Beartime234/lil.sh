@@ -17,9 +17,7 @@ Resources:
     Type: AWS::S3::Bucket
     DependsOn:
       - UrlShortenerLoggingBucket
-      - CloudFrontHitLambda
-      - CloudFrontDistribution
-      - CloudFrontHitLambdaRole
+      - CloudfrontLambdaPermission
     Properties:
       BucketName:
         Ref: WebsiteName
@@ -88,7 +86,7 @@ Resources:
       FunctionName: !Ref CloudFrontHitLambda
       Principal: s3.amazonaws.com
       SourceAccount: !Ref AWS::AccountId
-      SourceArn: !GetAtt UrlShortenerBucket.Arn
+      SourceArn: !Sub arn:aws:s3:::${WebsiteName}
 
   CloudFrontHitLambdaRole:
     Type: "AWS::IAM::Role"
