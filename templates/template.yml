@@ -27,7 +27,7 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName:
           Ref: UrlShortenerLoggingBucket
-        LogFilePrefix: backend
+        LogFilePrefix: backend/
       WebsiteConfiguration:
         IndexDocument: base.redirect
         RoutingRules:
@@ -183,7 +183,7 @@ Resources:
         Logging:
           Bucket: !GetAtt UrlShortenerLoggingBucket.DomainName
           IncludeCookies: false
-          Prefix: "cloudfront"
+          Prefix: "cloudfront/backend/"
         DefaultCacheBehavior:
           AllowedMethods:
             - GET
@@ -204,21 +204,10 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName:
           Ref: UrlShortenerLoggingBucket
-        LogFilePrefix: frontend
+        LogFilePrefix: frontend/
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html
-
-  FrontendBucketWWW:
-    Type: AWS::S3::Bucket
-    Properties:
-      AccessControl: PublicRead
-      BucketName:
-        Fn::Sub: www.${FrontendDomain}.${WebsiteName}
-      WebsiteConfiguration:
-        RedirectAllRequestsTo:
-          HostName:
-            Ref: "FrontendBucket"
 
   FrontendCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
@@ -229,7 +218,6 @@ Resources:
       DistributionConfig:
         Aliases:
           - !Sub ${FrontendDomain}.${WebsiteName}
-          - !Sub www.${FrontendDomain}.${WebsiteName}
         Origins:
           - DomainName:
               Fn::Select:
@@ -250,7 +238,7 @@ Resources:
         Logging:
           Bucket: !GetAtt UrlShortenerLoggingBucket.DomainName
           IncludeCookies: false
-          Prefix: "cloudfront"
+          Prefix: "cloudfront/frontend/"
         DefaultCacheBehavior:
           AllowedMethods:
             - GET
@@ -268,6 +256,39 @@ Resources:
           AcmCertificateArn:
             Ref: CertificateArn
           SslSupportMethod: sni-only
+
+
+  FrontendRecordSetIpv4:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName:
+          Fn::GetAtt:
+            - CloudFrontDistribution
+            - DomainName
+        EvaluateTargetHealth: false
+        HostedZoneId: Z2FDTNDATAQYW2
+      Comment: Record set for the frontend for the urlshortener to cloudfront to S3 bucket for IPV4
+      HostedZoneId:
+        Ref: "HostedZoneID"
+      Name: !Sub ${FrontendDomain}.${WebsiteName}
+      Type: A
+
+  FrontendRecordSetIpv6:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName:
+          Fn::GetAtt:
+            - CloudFrontDistribution
+            - DomainName
+        EvaluateTargetHealth: false
+        HostedZoneId: Z2FDTNDATAQYW2
+      Comment: Record set for the URL Shortner to cloudfront to S3 bucket for IPV6
+      HostedZoneId:
+        Ref: "HostedZoneID"
+      Name: !Sub ${FrontendDomain}.${WebsiteName}
+      Type: AAAA
 
   UrlShortenerRecordSetIpv4:
     Type: AWS::Route53::RecordSet
