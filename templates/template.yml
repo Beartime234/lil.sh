@@ -214,7 +214,7 @@ Resources:
     Properties:
       AccessControl: PublicRead
       BucketName:
-        Fn::Sub: !Sub www.${FrontendDomain}.${WebsiteName}
+        Fn::Sub: www.${FrontendDomain}.${WebsiteName}
       WebsiteConfiguration:
         RedirectAllRequestsTo:
           HostName:
@@ -222,6 +222,9 @@ Resources:
 
   FrontendCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - "UrlShortenerLoggingBucket"
+      - "FrontendBucket"
     Properties:
       DistributionConfig:
         Aliases:
