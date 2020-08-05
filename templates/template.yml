@@ -240,7 +240,6 @@ Resources:
                         - "FrontendBucket"
                         - WebsiteURL
             Id: OriginRedirect
-            OriginPath: /
             CustomOriginConfig:
               HTTPPort: '80'
               HTTPSPort: '443'
