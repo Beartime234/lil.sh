@@ -45,9 +45,7 @@ jobs:
         # If the CloudFormation change set is empty, do not fail. Defaults to '0' (will fail on empty change set)
         no-fail-on-empty-changeset: true
     - name: Sync with S3
-      uses: Reggionick/s3-deploy@v2.0.0
-      with:
-        folder: src
-        bucket: lil.sh
-        dist-id: ${{ steps.deploy_backend.outputs.CloudfrontDistributionID }}
-        invalidation: "/*/"
+      uses: jakejarvis/s3-sync-action@master
+      env:
+        SOURCE_DIR: src
+        AWS_S3_BUCKET: lil.sh
