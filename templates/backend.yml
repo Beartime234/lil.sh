@@ -178,7 +178,7 @@ Resources:
         Enabled: true
         DefaultRootObject: base.redirect
         Logging:
-          Bucket: !Ref UrlShortenerLoggingBucket
+          Bucket: !GetAtt UrlShortenerLoggingBucket.DomainName
           IncludeCookies: false
           Prefix: "cloudfront"
         DefaultCacheBehavior:
