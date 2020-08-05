@@ -26,7 +26,7 @@ Resources:
           Ref: UrlShortenerLoggingBucket
         LogFilePrefix: s3logs
       WebsiteConfiguration:
-        IndexDocument: base.redirect
+        IndexDocument: index.html
         RoutingRules:
           - RedirectRule:
               HostName:
@@ -176,7 +176,7 @@ Resources:
               OriginProtocolPolicy: http-only
         Comment: CloudFront distribution
         Enabled: true
-        DefaultRootObject: base.redirect
+        DefaultRootObject: index.html
         Logging:
           Bucket: !GetAtt UrlShortenerLoggingBucket.DomainName
           IncludeCookies: false
