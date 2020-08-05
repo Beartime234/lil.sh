@@ -11,6 +11,9 @@ Parameters:
   CertificateArn:
     Type: String
     Description: The certificate ARN for the domain.
+  FrontendDomain:
+    Type: String
+    Description: The domain for the frontend
 
 Resources:
   UrlShortenerBucket:
@@ -24,9 +27,9 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName:
           Ref: UrlShortenerLoggingBucket
-        LogFilePrefix: s3logs
+        LogFilePrefix: backend
       WebsiteConfiguration:
-        IndexDocument: index.html
+        IndexDocument: base.redirect
         RoutingRules:
           - RedirectRule:
               HostName:
@@ -176,6 +179,71 @@ Resources:
               OriginProtocolPolicy: http-only
         Comment: CloudFront distribution
         Enabled: true
+        DefaultRootObject: base.redirect
+        Logging:
+          Bucket: !GetAtt UrlShortenerLoggingBucket.DomainName
+          IncludeCookies: false
+          Prefix: "cloudfront"
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          ForwardedValues:
+            QueryString: false
+          TargetOriginId: OriginRedirect
+          ViewerProtocolPolicy: redirect-to-https
+        ViewerCertificate:
+          AcmCertificateArn:
+            Ref: CertificateArn
+          SslSupportMethod: sni-only
+
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${FrontendDomain}.${WebsiteName}
+      LoggingConfiguration:
+        DestinationBucketName:
+          Ref: UrlShortenerLoggingBucket
+        LogFilePrefix: frontend
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+
+  FrontendBucketWWW:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      BucketName:
+        Fn::Sub: !Sub www.${FrontendDomain}.${WebsiteName}
+      WebsiteConfiguration:
+        RedirectAllRequestsTo:
+          HostName:
+            Ref: "FrontendBucket"
+
+  FrontendCloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - !Sub ${FrontendDomain}.${WebsiteName}
+          - !Sub www.${FrontendDomain}.${WebsiteName}
+        Origins:
+          - DomainName:
+              Fn::Select:
+                - 2
+                - Fn::Split:
+                    - /
+                    - Fn::GetAtt:
+                        - "FrontendBucket"
+                        - WebsiteURL
+            Id: OriginRedirect
+            OriginPath: /
+            CustomOriginConfig:
+              HTTPPort: '80'
+              HTTPSPort: '443'
+              OriginProtocolPolicy: http-only
+        Comment: CloudFront distribution
+        Enabled: true
         DefaultRootObject: index.html
         Logging:
           Bucket: !GetAtt UrlShortenerLoggingBucket.DomainName
@@ -185,6 +253,11 @@ Resources:
           AllowedMethods:
             - GET
             - HEAD
+            - OPTIONS
+            - PUT
+            - PATCH
+            - POST
+            - DELETE
           ForwardedValues:
             QueryString: false
           TargetOriginId: OriginRedirect

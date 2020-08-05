@@ -37,15 +37,15 @@ jobs:
         # The name of the CloudFormation stack
         name: lilsh-backend
         # The path or URL to the CloudFormation template
-        template: templates/backend.yml
+        template: templates/template.yml
         # The comma-delimited list of stack template capabilities to acknowledge. Defaults to 'CAPABILITY_IAM'
         capabilities: CAPABILITY_IAM
         # The parameters to override in the stack inputs. The list is comma-delimited, with each entry formatted as <ParameterName>=<ParameterValue>.
-        parameter-overrides: WebsiteName=lil.sh,HostedZoneID=Z0843856IR07ISM8XVHB,CertificateArn=arn:aws:acm:us-east-1:934679804324:certificate/24823ff9-d324-4d26-aa6b-089a8d264a3c
+        parameter-overrides: WebsiteName=lil.sh,HostedZoneID=Z0843856IR07ISM8XVHB,CertificateArn=arn:aws:acm:us-east-1:934679804324:certificate/24823ff9-d324-4d26-aa6b-089a8d264a3c,FrontendDomain=get
         # If the CloudFormation change set is empty, do not fail. Defaults to '0' (will fail on empty change set)
         no-fail-on-empty-changeset: 1
     - name: Sync with S3
       uses: jakejarvis/s3-sync-action@master
       env:
         SOURCE_DIR: src
-        AWS_S3_BUCKET: lil.sh
+        AWS_S3_BUCKET: get.lil.sh
