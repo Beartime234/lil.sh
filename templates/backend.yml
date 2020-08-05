@@ -270,6 +270,11 @@ Outputs:
     Value:
       Ref: "UrlShortenerBucket"
 
+  CloudfrontDistributionID:
+    Value:
+      Ref: CloudFrontDistribution
+    Description: Cloudfront distributionid
+
   CloudfrontEndpoint:
     Value:
       Fn::GetAtt:

@@ -43,3 +43,10 @@ jobs:
         parameter-overrides: WebsiteName=lil.sh,HostedZoneID=Z0843856IR07ISM8XVHB,CertificateArn=arn:aws:acm:us-east-1:934679804324:certificate/24823ff9-d324-4d26-aa6b-089a8d264a3c
         # If the CloudFormation change set is empty, do not fail. Defaults to '0' (will fail on empty change set)
         no-fail-on-empty-changeset: true
+    - name: Sync with S3
+      uses: Reggionick/s3-deploy@v2.0.0
+      with:
+        folder: src
+        bucket: lil.sh
+        dist-id: {{ CloudfrontDistributionID }}
+        invalidation: /*/
