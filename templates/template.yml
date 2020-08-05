@@ -33,7 +33,7 @@ Resources:
         RoutingRules:
           - RedirectRule:
               HostName:
-                Fn::Sub: ${WebsiteName}
+                Fn::Sub: ${FrontendDomain}.${WebsiteName}
             RoutingRuleCondition:
               HttpErrorCodeReturnedEquals: 404
       LifecycleConfiguration:
