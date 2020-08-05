@@ -209,6 +209,22 @@ Resources:
         IndexDocument: index.html
         ErrorDocument: index.html
 
+  FrontendBucketPolicy:  # This makes the bucket publicly accessible
+    DependsOn: "FrontendBucket"
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: "FrontendBucket"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AddPerm
+            Effect: Allow
+            Principal: '*'
+            Action: s3:GetObject
+            Resource:
+              Fn::Sub: arn:aws:s3:::${FrontendBucket}/*
+
   FrontendCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     DependsOn:
