@@ -48,5 +48,5 @@ jobs:
       with:
         folder: src
         bucket: lil.sh
-        dist-id: {{ CloudfrontDistributionID }}
+        dist-id: ${{ CloudfrontDistributionID }}
         invalidation: "/*/"
