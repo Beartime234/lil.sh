@@ -32,6 +32,7 @@ jobs:
     
     - name: Deploy Backend Cloudformation
       uses: aws-actions/aws-cloudformation-github-deploy@v1.0.3
+      id: deploy_backend
       with:
         # The name of the CloudFormation stack
         name: lilsh-backend
@@ -48,5 +49,5 @@ jobs:
       with:
         folder: src
         bucket: lil.sh
-        dist-id: ${{ jobs.deploy.outputs.CloudfrontDistributionID }}
+        dist-id: ${{ steps.deploy_backend.outputs.CloudfrontDistributionID }}
         invalidation: "/*/"
