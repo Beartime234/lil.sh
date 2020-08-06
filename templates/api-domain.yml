@@ -1,0 +1,63 @@
+  
+AWSTemplateFormatVersion: '2010-09-09'
+Description: |
+  Deploys a custom domain for a API
+Parameters:
+  ServiceName:
+    Description: The name of the service that you are deploying
+    Type: String
+    Default: lil-sh
+  Stage:
+    Description: The Stage/Environment you are building in.
+    Type: String
+    Default: prod
+    AllowedValues:
+      - local-dev
+      - dev
+      - test
+      - prod
+  ApiDomain:
+    Description: The domain
+    Type: String
+    Default: lil.sh
+  ApiDomainCertificate:
+    Description: The certificate arn for the domain that are you using
+    Type: String
+    Default: arn:aws:acm:us-east-1:934679804324:certificate/e9d4580c-1ff4-4836-9a7e-9a9e532be2e6
+
+Resources:
+  ApiGatewayCustomDomainName:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      DomainName:
+        Fn::Sub: api.${ApiDomain}
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      RegionalCertificateArn:
+        Ref: ApiDomainCertificate
+  ApiGatewayCustomDomainMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    DependsOn:
+      - ApiGatewayCustomDomainName
+    Properties:
+      BasePath: "v1"
+      DomainName:
+        Fn::Sub: api.${ApiDomain}
+      RestApiId:
+        Fn::ImportValue:
+          Fn::Sub: ${Stage}-${ServiceName}-api-id
+      Stage:
+        Fn::Sub: ${Stage}
+  CustomDomainRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Type: CNAME
+      HostedZoneName:
+        Fn::Sub: ${ApiDomain}.
+      Name:
+        Fn::Sub:
+          api.${ApiDomain}
+      ResourceRecords:
+        - Fn::Sub: ${ApiGatewayCustomDomainName.RegionalDomainName}
+      TTL: 300

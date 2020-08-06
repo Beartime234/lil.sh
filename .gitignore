@@ -140,3 +140,9 @@ cython_debug/
 
 # Editor Stuff
 .idea
+
+# Node Modules
+node_modules
+
+# Serverless Framework
+.serverless
