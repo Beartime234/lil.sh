@@ -55,5 +55,15 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
 
-    - name: Deploy Lambda functions
+    - name: Deploy api
       run: sls deploy -s prod
+
+    - name: Deploy Domain Cloudformation
+      uses: "aws-actions/aws-cloudformation-github-deploy@v1.0.3"
+      id: deploy_api_domain
+      with:
+        name: lilsh-api-domain-prod
+        template: templates/api-domain.yml
+        capabilities: CAPABILITY_IAM
+        parameter-overrides: ServiceName=lilsh,Stage=prod,ApiDomain=lil.sh,CertificateArn=arn:aws:acm:us-east-1:934679804324:certificate/24823ff9-d324-4d26-aa6b-089a8d264a3c
+        no-fail-on-empty-changeset: 1

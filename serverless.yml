@@ -61,7 +61,7 @@ package:
 
 functions:
   create:
-    handler: api/url/handler.lambda_handler
+    handler: api/src/handler.lambda_handler
     timeout: 10
     memorySize: 512
     description: Create shortened URL
@@ -71,7 +71,7 @@ functions:
           path: create
           method: post
   check:
-    handler: api/url/handler.lambda_handler
+    handler: api/src/handler.lambda_handler
     timeout: 10
     memorySize: 512
     description: Check if a shortened URL already exists
