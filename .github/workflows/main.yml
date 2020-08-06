@@ -63,6 +63,6 @@ jobs:
     - run: npm install
 
     - name: serverless deploy
-      uses: serverless/github-action@master
+      uses: serverless/github-action@v1.53.0
       with:
         args: deploy -s prod
