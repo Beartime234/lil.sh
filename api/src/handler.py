@@ -6,8 +6,8 @@ from api.src.api import BaseApiResponse, InternalErrorApiResponse
 from api.src.check import CheckApiFunction
 from api.src.create import CreateApiFunction
 
-CHECK_PATH = "/check"
-CREATE_PATH = "/create"
+CHECK_RESOURCE = "/check"
+CREATE_RESOURCE = "/create"
 
 log = logging.getLogger(__name__)
 
@@ -26,13 +26,13 @@ class ApiEvent:
 
 def map_function(api_event: ApiEvent) -> BaseApiResponse:
     if api_event.http_method == "GET":
-        if api_event.path == CHECK_PATH:
-            log.debug(f"Event maps to GET {CHECK_PATH}")
+        if api_event.resource == CHECK_RESOURCE:
+            log.debug(f"Event maps to method GET. resource {CHECK_RESOURCE}")
             return CheckApiFunction().run()
 
     if api_event.http_method == "POST":
-        if api_event.path == CREATE_PATH:
-            log.debug(f"Event maps to POST {CREATE_PATH}")
+        if api_event.resource == CREATE_RESOURCE:
+            log.debug(f"Event maps to method POST, resource {CREATE_RESOURCE}")
             return CreateApiFunction().run()
 
     return InternalErrorApiResponse(f"No function for the path {api_event.path} for method {api_event.http_method}")
