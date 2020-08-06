@@ -45,7 +45,6 @@ jobs:
         AWS_S3_BUCKET: get.lil.sh
 
   deploy-api:
-    name: deploy
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
