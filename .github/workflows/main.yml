@@ -41,6 +41,13 @@ jobs:
     steps:
     - uses: "actions/checkout@master"
 
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '10.x'
+
+    - name: Install Serverless Framework
+      run: npm install -g serverless
+
     - name: Load AWS Credentials
       uses: "aws-actions/configure-aws-credentials@v1"
       with:
@@ -48,13 +55,5 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
 
-    - name: Use Node.js v12.18.3
-      uses: "actions/setup-node@v1"
-      with:
-        node-version: 12.18.3
-    - run: npm install
-
-    - name: serverless deploy
-      uses: "serverless/github-action@v1.53.0"
-      with:
-        args: deploy -s prod
+    - name: Deploy Lambda functions
+      run: sls deploy -s prod
