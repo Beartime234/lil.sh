@@ -56,10 +56,11 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
 
-    - name: npm install
-      uses: actions/npm@master
+    - name: Use Node.js v12.18.3
+      uses: actions/setup-node@v1
       with:
-        args: install
+        node-version: 12.18.3
+    - run: npm install
 
     - name: serverless deploy
       uses: serverless/github-action@master
