@@ -25,7 +25,7 @@ jobs:
       id: deploy_backend
       with:
         name: lilsh-backend
-        template: templates/template.yml
+        template: templates/backend.yml
         capabilities: CAPABILITY_IAM
         parameter-overrides: WebsiteName=lil.sh,HostedZoneID=Z0843856IR07ISM8XVHB,CertificateArn=arn:aws:acm:us-east-1:934679804324:certificate/24823ff9-d324-4d26-aa6b-089a8d264a3c,FrontendDomain=get
         no-fail-on-empty-changeset: 1

@@ -57,7 +57,7 @@ package:
   exclude:
     - ./**
   include:
-    - ./api/**
+    - ./api/src/
 
 functions:
   create:
