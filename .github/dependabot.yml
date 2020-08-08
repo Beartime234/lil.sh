@@ -1,0 +1,24 @@
+version: 2
+updates:
+  - package-ecosystem: "pip" 
+    directory: "/api"
+    schedule:
+      interval: "weekly"
+    assignees:
+      - "beartime234":
+    commit-message:
+      prefix: "pip prod"
+      prefix-development: "pip dev"
+      include: "scope"
+    rebase-strategy: "auto"
+    
+  - package-ecosystem: "github-actions"
+    directory: "./github/workflows"
+    schedule:
+      interval: "weekly"
+    assignees:
+      - "beartime234"
+    commit-message:
+      prefix: "github actions"
+      include: "scope"
+    rebase-strategy: "auto"
