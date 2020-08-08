@@ -117,7 +117,7 @@ class Shortener:
         Returns:
             The new url as a string
         """
-        new_url = f"https://{self.env.bucket_name}/{suffix}"
+        new_url = f"{self.env.bucket_name}/{suffix}"
         log.debug(f"New url: {new_url}")
         return new_url
 

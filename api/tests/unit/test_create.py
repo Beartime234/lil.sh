@@ -41,7 +41,7 @@ class TestCreateApiFunctionWSuffix:
     def test_run(self, create_api_function_w_suffix: CreateApiFunction, aws_credentials, s3, surl_bucket):
         res: FunctionApiResponse = create_api_function_w_suffix.run()
         assert res.status_code == 200
-        assert res.body["newUrl"] == f"https://{test_bucket}/test"
+        assert res.body["newUrl"] == f"{test_bucket}/test"
 
         # Run twice we should get it already exists
         res: FunctionApiResponse = create_api_function_w_suffix.run()
