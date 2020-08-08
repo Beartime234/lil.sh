@@ -1,0 +1,2 @@
+class SuffixAlreadyExists(Exception):
+    pass

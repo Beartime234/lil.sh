@@ -20,6 +20,10 @@ service: lilsh
 # Check out our docs for more details
 # frameworkVersion: "=X.X.X"
 
+custom:
+  s3Bucket: "lil.sh"
+  keyPrefix: "surl/"
+
 provider:
   name: aws
   runtime: python3.8
@@ -29,30 +33,17 @@ provider:
   stackName: ${self:service}-api-${opt:stage}
   environment:
     LOG_LEVEL: DEBUG
-
-# you can overwrite defaults here
-#  stage: dev
-#  region: us-east-1
-
-# you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
-
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+    BUCKET_NAME: "${self:custom.s3Bucket}"
+    KEY_PREFIX: "${self:custom.keyPrefix}"
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:GetObject"
+        - "s3:PutObject"
+        - "s3:ListBucket"
+      Resource:
+        - "arn:aws:s3:::${self:custom.s3Bucket}/*"
+        - "arn:aws:s3:::${self:custom.s3Bucket}"
 
 # you can add packaging information here
 package:

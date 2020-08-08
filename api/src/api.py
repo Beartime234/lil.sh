@@ -1,8 +1,8 @@
 import json
-from dataclasses import dataclass
+
+from api.src.environment import Env
 
 
-@dataclass
 class ApiEvent:
     """Class for accessing event information relevant to the API"""
     path: str
@@ -10,11 +10,27 @@ class ApiEvent:
     http_method: str
     headers: dict
     query_string_params: dict
+    body: dict
+
+    def __init__(self, raw_api_event: dict):
+        self.path = raw_api_event["path"]
+        self.resource = raw_api_event["resource"]
+        self.http_method = raw_api_event["httpMethod"]
+        self.headers = raw_api_event["headers"]
+        # If there are no query string params we dont want it to be None
+        self.query_string_params = raw_api_event["queryStringParameters"]
+        if self.query_string_params is None:
+            self.query_string_params = {}
+        raw_body = raw_api_event["body"]
+        if raw_body is None:
+            self.body = {}
+        else:
+            self.body = json.loads(raw_body)
 
     def __str__(self):
         return f"Path: {self.path}, Resource: {self.resource}, " \
                f"HttpMethod: {self.http_method},  Headers: {self.headers}, " \
-               f"QueryStringParams: {self.query_string_params}"
+               f"QueryStringParams: {self.query_string_params}, Body: {self.body}"
 
 
 class BaseApiResponse:
@@ -71,7 +87,8 @@ class InternalErrorApiResponse(BaseApiResponse):
 
 class BaseApiFunction:
 
-    def __init__(self, api_event: ApiEvent):
+    def __init__(self, api_event: ApiEvent, env: Env):
+        self.env = env
         self.api_event = api_event
 
     def run(self) -> FunctionApiResponse:

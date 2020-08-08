@@ -24,12 +24,12 @@ def get_from_env(key: str) -> str:
 
 
 @dataclass(frozen=True)
-class Environment:
+class Env:
     bucket_name: str
     key_prefix: str
 
     def __str__(self) -> str:
-        return str(dir(__builtins__))
+        return f"BucketName: {self.bucket_name}, KeyPrefix: {self.key_prefix}"
 
 
-ENV_KEYS = Environment(bucket_name="BUCKET_NAME", key_prefix="KEY_PREFIX")
+ENV_KEYS = Env(bucket_name="BUCKET_NAME", key_prefix="KEY_PREFIX")

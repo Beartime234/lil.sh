@@ -1,17 +1,18 @@
 import pytest
 
 from api.src.api import BaseApiResponse, FunctionApiResponse, InternalErrorApiResponse, ApiEvent, BaseApiFunction
+from api.tests.unit.test_environment import env
 
 
 @pytest.fixture(scope="class")
 def api_event():
-    return ApiEvent(
-        path="something",
-        resource="/something",
-        http_method="GET",
-        headers={"User-Agent": "myawesomebrowser"},
-        query_string_params={"a": "b"}
-    )
+    return ApiEvent({
+        "path": "/v1/something",
+        "resource": "something",
+        "httpMethod": "GET",
+        "headers": {"User-Agent": "myawesomebrowser"},
+        "queryStringParameters": None
+    })
 
 
 @pytest.fixture(scope="class")
@@ -41,18 +42,18 @@ def base_api_function():
 
 
 @pytest.fixture(scope="class")
-def base_api_function(api_event):
-    return BaseApiFunction(api_event)
+def base_api_function(api_event, env):
+    return BaseApiFunction(api_event, env)
 
 
 class TestApiEvent:
 
     def test_attributes(self, api_event: ApiEvent):
-        assert api_event.path == "something"
+        assert api_event.path == "/v1/something"
         assert api_event.http_method == "GET"
-        assert api_event.resource == "/something"
+        assert api_event.resource == "something"
         assert api_event.headers == {"User-Agent": "myawesomebrowser"}
-        assert api_event.query_string_params == {"a": "b"}
+        assert api_event.query_string_params == {}
 
 
 class TestBaseApiResponse:

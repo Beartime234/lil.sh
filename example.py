@@ -15,7 +15,7 @@ def upload_blank_object():
     s3.put_object(
         Body=b'',
         Bucket=S3_BUCKET,
-        Key=f"surl/test",
+        Key=f"surl/hello",
         WebsiteRedirectLocation="https://google.com"
     )
 

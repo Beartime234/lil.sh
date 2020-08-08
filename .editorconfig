@@ -17,3 +17,8 @@ charset = utf-8
 [*.py]
 indent_style = space
 indent_size = 4
+
+# 4 space indentation
+[{*.yml,yaml}]
+indent_style = space
+indent_size = 2
