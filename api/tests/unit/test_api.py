@@ -1,6 +1,17 @@
 import pytest
 
-from api.src.api import BaseApiResponse, FunctionApiResponse, InternalErrorApiResponse
+from api.src.api import BaseApiResponse, FunctionApiResponse, InternalErrorApiResponse, ApiEvent, BaseApiFunction
+
+
+@pytest.fixture(scope="class")
+def api_event():
+    return ApiEvent(
+        path="something",
+        resource="/something",
+        http_method="GET",
+        headers={"User-Agent": "myawesomebrowser"},
+        query_string_params={"a": "b"}
+    )
 
 
 @pytest.fixture(scope="class")
@@ -14,13 +25,34 @@ def base_api_response():
 @pytest.fixture(scope="class")
 def function_api_response():
     return FunctionApiResponse(
-        body={"dog": "boi"}
+        body={"dog": "boi"},
+        status_code=200
     )
 
 
 @pytest.fixture(scope="class")
 def internal_error_api_response():
     return InternalErrorApiResponse("damn")
+
+
+@pytest.fixture(scope="class")
+def base_api_function():
+    return InternalErrorApiResponse("damn")
+
+
+@pytest.fixture(scope="class")
+def base_api_function(api_event):
+    return BaseApiFunction(api_event)
+
+
+class TestApiEvent:
+
+    def test_attributes(self, api_event: ApiEvent):
+        assert api_event.path == "something"
+        assert api_event.http_method == "GET"
+        assert api_event.resource == "/something"
+        assert api_event.headers == {"User-Agent": "myawesomebrowser"}
+        assert api_event.query_string_params == {"a": "b"}
 
 
 class TestBaseApiResponse:
@@ -69,3 +101,13 @@ class TestInternalErrorApiResponse:
         assert internal_error_api_response_as_dict["body"] == '{"errorMessage": "damn"}'
         assert internal_error_api_response_as_dict["headers"] == {}
         assert internal_error_api_response_as_dict["isBase64Encoded"] is False
+
+
+class TestApiFunction:
+
+    def test___init__(self, api_event: ApiEvent, base_api_function: BaseApiFunction):
+        assert base_api_function.api_event == api_event
+
+    def test_run(self, base_api_function: BaseApiFunction):
+        with pytest.raises(NotImplementedError):
+            base_api_function.run()

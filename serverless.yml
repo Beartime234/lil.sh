@@ -27,6 +27,8 @@ provider:
   region: us-east-1
   endpointType: REGIONAL
   stackName: ${self:service}-api-${opt:stage}
+  environment:
+    LOG_LEVEL: DEBUG
 
 # you can overwrite defaults here
 #  stage: dev
@@ -57,7 +59,7 @@ package:
   exclude:
     - ./**
   include:
-    - ./api/src/
+    - ./api/src/**
 
 functions:
   create:

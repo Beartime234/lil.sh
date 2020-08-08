@@ -1,5 +1,10 @@
-from api.src.api import ApiFunction
+from api.src.api import BaseApiFunction, ApiEvent, FunctionApiResponse
 
 
-class CreateApiFunction(ApiFunction):
-    pass
+class CreateApiFunction(BaseApiFunction):
+
+    def __init__(self, api_event: ApiEvent):
+        super().__init__(api_event)
+
+    def run(self) -> FunctionApiResponse:
+        pass
