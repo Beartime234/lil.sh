@@ -14,6 +14,6 @@ jobs:
         with:
           python-version: 3.8
       - name: Install dev deps
-        run: pip install -r requirements-dev.txt
+        run: pip install -r api/requirements-dev.txt
       - name: Run Pytest
         run: python -m pytest api/tests/
