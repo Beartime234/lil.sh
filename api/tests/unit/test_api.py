@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from api.src.api import BaseApiResponse, FunctionApiResponse, InternalErrorApiResponse, ApiEvent, BaseApiFunction
@@ -11,7 +13,8 @@ def api_event():
         "resource": "something",
         "httpMethod": "GET",
         "headers": {"User-Agent": "myawesomebrowser"},
-        "queryStringParameters": None
+        "queryStringParameters": None,
+        "body": json.dumps({})
     })
 
 
