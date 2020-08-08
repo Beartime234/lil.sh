@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: "weekly"
     assignees:
-      - "beartime234":
+      - "beartime234"
     commit-message:
       prefix: "pip prod"
       prefix-development: "pip dev"
