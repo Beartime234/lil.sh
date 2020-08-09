@@ -52,7 +52,7 @@ const ErrorPage = () => {
     <div css={[ErrorPageStyle(isLight)]}>
       <h1>Link Not Found.</h1>
       <img src={TakenSVG} alt="" />
-      <Link to="/">go Home</Link>
+      <Link to="/">Make your own link</Link>
     </div>
   );
 };

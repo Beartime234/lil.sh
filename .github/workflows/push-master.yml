@@ -113,5 +113,5 @@ jobs:
       - name: Sync with S3
         uses: "jakejarvis/s3-sync-action@master"
         env:
-          SOURCE_DIR: frontend/dist
+          SOURCE_DIR: frontend/dist/
           AWS_S3_BUCKET: get.lil.sh

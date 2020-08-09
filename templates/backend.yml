@@ -234,6 +234,10 @@ Resources:
       DistributionConfig:
         Aliases:
           - !Sub ${FrontendDomain}.${WebsiteName}
+        CustomErrorResponses:
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
         Origins:
           - DomainName:
               Fn::Select:
