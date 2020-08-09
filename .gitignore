@@ -142,7 +142,10 @@ cython_debug/
 .idea
 
 # Node Modules
-node_modules
+frontend/node_modules
 
 # Serverless Framework
 .serverless
+
+# Node Stuff
+frontend/dist

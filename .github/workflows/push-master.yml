@@ -45,7 +45,7 @@ jobs:
     - name: Sync with S3
       uses: "jakejarvis/s3-sync-action@master"
       env:
-        SOURCE_DIR: src
+        SOURCE_DIR: frontend
         AWS_S3_BUCKET: get.lil.sh
 
   deploy-api:
@@ -80,3 +80,34 @@ jobs:
         capabilities: CAPABILITY_IAM
         parameter-overrides: ServiceName=lilsh,Stage=prod,ApiDomain=lil.sh,CertificateArn=${{ secrets.PROD_CERT_ARN }}
         no-fail-on-empty-changeset: 1
+
+  deploy-frontend:
+    needs:
+      - test
+      - deploy-backend
+      - deploy-api
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: "actions/checkout@v2"
+
+      - name: Load AWS Credentials
+        uses: "aws-actions/configure-aws-credentials@v1"
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+
+      - run: npm run build --prefix frontend
+        env:
+          NODE_ENV: production
+
+      - name: Sync with S3
+        uses: "jakejarvis/s3-sync-action@master"
+        env:
+          SOURCE_DIR: frontend/dist
+          AWS_S3_BUCKET: get.lil.sh
