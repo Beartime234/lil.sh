@@ -42,11 +42,6 @@ jobs:
         parameter-overrides: WebsiteName=lil.sh,HostedZoneID=Z0843856IR07ISM8XVHB,CertificateArn=${{ secrets.PROD_CERT_ARN }},FrontendDomain=get
         no-fail-on-empty-changeset: 1
 
-    - name: Sync with S3
-      uses: "jakejarvis/s3-sync-action@master"
-      env:
-        SOURCE_DIR: frontend
-        AWS_S3_BUCKET: get.lil.sh
 
   deploy-api:
     needs: test
