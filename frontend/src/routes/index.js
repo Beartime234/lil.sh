@@ -9,7 +9,7 @@ const Routes = () => {
     <Suspense fallback={<div>Loading...</div>}>
       <Switch>
         <Route exact path="/" component={HomePage} />
-        <Route component={_ => <ErrorPage status={404} message="Link not found." />} />
+          <Route component={_ => <ErrorPage status={404} message="Link not found." />} />
       </Switch>
     </Suspense>
   );

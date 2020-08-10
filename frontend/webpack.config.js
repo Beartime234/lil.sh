@@ -33,6 +33,11 @@ const loaders = {
 };
 
 module.exports = {
+  devServer: {
+    historyApiFallback:{
+      index:'/'
+    },
+  },
   mode: prod ? 'production' : 'development',
   devtool: prod ? false : 'eval-source-map',
   entry: {
@@ -99,6 +104,7 @@ module.exports = {
     ],
   },
   output: {
+    publicPath: "/",
     path: resolve(__dirname, 'dist'),
     filename: 'static/js/[name].[contenthash:8].js',
     chunkFilename: 'static/js/[name].[id].[contenthash:8].chunk.js',
