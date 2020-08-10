@@ -211,12 +211,12 @@ Resources:
         RoutingRules:
           - RedirectRule:
               HostName: !Sub ${FrontendDomain}.${WebsiteName}
-              ReplaceKeyPrefixWith: "#!"
+              ReplaceKeyPrefixWith: "#!/"
             RoutingRuleCondition:
               HttpErrorCodeReturnedEquals: 404
           - RedirectRule:
               HostName: !Sub ${FrontendDomain}.${WebsiteName}
-              ReplaceKeyPrefixWith: "#!"
+              ReplaceKeyPrefixWith: "#!/"
             RoutingRuleCondition:
               HttpErrorCodeReturnedEquals: 403
 
@@ -236,6 +236,17 @@ Resources:
             Resource:
               Fn::Sub: arn:aws:s3:::${FrontendBucket}/*
 
+  FrontendBucketWWW:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      BucketName:
+        Fn::Sub: www.${FrontendBucket}
+      WebsiteConfiguration:
+        RedirectAllRequestsTo:
+          HostName:
+            Ref: "FrontendBucket"
+
   FrontendCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     DependsOn:
@@ -245,6 +256,7 @@ Resources:
       DistributionConfig:
         Aliases:
           - !Sub ${FrontendDomain}.${WebsiteName}
+          - !Sub www.${FrontendDomain}.${WebsiteName}
         CustomErrorResponses:
           - ErrorCode: 404
             ResponseCode: 200
