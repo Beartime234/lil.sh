@@ -6,7 +6,7 @@ const ErrorPage = lazy(() => import('../pages/ErrorPage'));
 
 const Routes = () => {
   return (
-    <Suspense fallback={<div />}>
+    <Suspense fallback={<div>Loading...</div>}>
       <Switch>
         <Route exact path="/" component={HomePage} />
         <Route component={_ => <ErrorPage status={404} message="Link not found." />} />
