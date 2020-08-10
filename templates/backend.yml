@@ -208,17 +208,17 @@ Resources:
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html
-      RoutingRules:
-        - RedirectRule:
-            HostName: !Sub ${FrontendDomain}.${WebsiteName}
-            ReplaceKeyPrefixWith: "#!"
-          RoutingRuleCondition:
-            HttpErrorCodeReturnedEquals: 404
-        - RedirectRule:
-            HostName: !Sub ${FrontendDomain}.${WebsiteName}
-            ReplaceKeyPrefixWith: "#!"
-          RoutingRuleCondition:
-            HttpErrorCodeReturnedEquals: 403
+        RoutingRules:
+          - RedirectRule:
+              HostName: !Sub ${FrontendDomain}.${WebsiteName}
+              ReplaceKeyPrefixWith: "#!"
+            RoutingRuleCondition:
+              HttpErrorCodeReturnedEquals: 404
+          - RedirectRule:
+              HostName: !Sub ${FrontendDomain}.${WebsiteName}
+              ReplaceKeyPrefixWith: "#!"
+            RoutingRuleCondition:
+              HttpErrorCodeReturnedEquals: 403
 
   FrontendBucketPolicy:  # This makes the bucket publicly accessible
     DependsOn: "FrontendBucket"
