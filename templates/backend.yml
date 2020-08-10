@@ -210,12 +210,12 @@ Resources:
         ErrorDocument: index.html
       RoutingRules:
         - RedirectRule:
-            HostName: !Sub {FrontendDomain}.${WebsiteName}
+            HostName: !Sub ${FrontendDomain}.${WebsiteName}
             ReplaceKeyPrefixWith: "#!"
           RoutingRuleCondition:
             HttpErrorCodeReturnedEquals: 404
         - RedirectRule:
-            HostName: !Sub {FrontendDomain}.${WebsiteName}
+            HostName: !Sub ${FrontendDomain}.${WebsiteName}
             ReplaceKeyPrefixWith: "#!"
           RoutingRuleCondition:
             HttpErrorCodeReturnedEquals: 403
