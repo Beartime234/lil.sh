@@ -33,7 +33,7 @@ const headerStyle = (isLight) => css`
       font-size: 2rem;
       font-weight: bold;
       text-decoration: none;
-      text-transform: uppercase;
+      text-transform: lowercase;
 
       svg {
         width: 2rem;

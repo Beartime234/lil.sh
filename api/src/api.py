@@ -43,7 +43,10 @@ class BaseApiResponse:
 
     def __init__(self, status_code: int, body: dict, is_base_64_encoded: bool = False):
         self.status_code: int = status_code
-        self.headers: dict = {}
+        self.headers: dict = {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': True,
+        }
         self.body: dict = body
         self.is_base_64_encoded = is_base_64_encoded
 

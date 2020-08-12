@@ -27,7 +27,7 @@ const Footer = () => {
   return (
     <footer css={[footerStyle]}>
       <nav>
-        <div><a href="https://josheaton.co.nz">Josh Eaton</a> made with <span className="love">❤</span></div>
+        <div><a href="https://josheaton.co.nz">josh eaton</a> made with <span className="love">❤</span></div>
         <div>
           <a
             href="https://github.com/Beartime234/lil.sh"
