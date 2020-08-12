@@ -72,19 +72,24 @@ const RequestLinkStyle = css`
 `;
 
 class RequestLink extends React.Component {
-  state = { redirectLocation: '', uniqueSuffix: true, suffix: '', submitted: false, done: false };
+  state = { redirectLocation: '', randomSuffix: true, suffix: '', submitted: false, done: false };
 
   handleSubmit = async (event) => {
     event.preventDefault();
     this.setState({submitted: true})
-    const data = { redirectLocation: this.state.redirectLocation }
+    let data = {}
+    if (this.state.randomSuffix === true) {
+      data = {redirectLocation: this.state.redirectLocation}
+    } else {
+      data = { redirectLocation: this.state.redirectLocation, suffix: this.state.suffix }
+    }
     const resp = await axios.post(`https://api.lil.sh/v1/create`, data);
     this.props.onSubmit(resp.data);
     this.setState({ redirectLocation: '' });
   };
 
   handleCheck = async (event) => {
-    this.setState({uniqueSuffix: !this.state.uniqueSuffix});
+    this.setState({uniqueSuffix: !this.state.randomSuffix});
   }
 
   render() {
@@ -111,10 +116,10 @@ class RequestLink extends React.Component {
                   <br/>
                   <div className="suffix-checkbox-div">
                     <label className="suffix-checkbox-label">random </label>
-                    <input className="suffix-checkbox" type="checkbox" onChange={this.handleCheck} defaultChecked={this.state.uniqueSuffix}/>
+                    <input className="suffix-checkbox" type="checkbox" onChange={this.handleCheck} defaultChecked={this.state.randomSuffix}/>
                   </div>
                   <div>
-                    {this.state.uniqueSuffix ? null : <Fragment> <span style={{position: "relative"}}>lil.sh/</span><input
+                    {this.state.randomSuffix ? null : <Fragment> <span style={{position: "relative"}}>lil.sh/</span><input
                       className="suffix-input"
                       type="text"
                       value={this.state.suffix}
