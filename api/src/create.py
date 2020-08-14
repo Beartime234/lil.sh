@@ -8,6 +8,8 @@ from api.src.shortener import Shortener
 
 from urllib.parse import urlparse
 
+INVALID_SUFFIXES = ["base.redirect"]
+
 
 class CreateApiFunction(BaseApiFunction):
 
@@ -60,4 +62,6 @@ class CreateApiFunction(BaseApiFunction):
         Returns:
             If the suffix is valid
         """
+        if self.suffix in INVALID_SUFFIXES:
+            return False
         return bool(re.match(r'^[a-zA-Z/~._-]+$', self.suffix))
