@@ -3,101 +3,95 @@ import React, {Fragment} from 'react';
 import { jsx, css } from '@emotion/core';
 import {BarLoader} from "react-spinners";
 import axios from 'axios'
-
-const options = [
-  { value: 'random', label: 'Random' },
-  { value: 'specific', label: 'Specific' },
-]
+import { store } from 'react-notifications-component';
+import {Link} from "react-router-dom";
+import ReCaptcha, { loadReCaptcha } from 'react-recaptcha-v3'
 
 const RequestLinkStyle = css`
-  .redirect-form {
-    font-size: 1.6rem;
-  }
-
-  .redirect-location-input {
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    text-align: center;
-    width: 50rem;
-    display: inline-block;
-    padding: 12px 20px;
-  }
   
-  .suffix-checkbox {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .redirect-location-label {
-    display: block;
-  }
-  
-  .suffix-checkbox-label {
-    font-size: 1.2rem;
-    bottom: .2rem;
-    position: relative;
-  }
-  
-  .redirect-location-div {
-    margin-bottom: .5rem;
-  }
-  
-  .suffix-checkbox-div {
-    margin-top 2rem;
-  }
-  
-  .suffix-div {
-    margin-top: 4rem;
-    margin-bottom: .5rem;
-  }
-  
-  .generate-button-div {
-    margin-top 2rem;
-  }
-  
-  .suffix-input {
-    width: 15rem;
-  }
-  
-  .generate-button {
-    color: #212121 !important;
-    text-transform: lowercase;
-    text-decoration: none;
-    background: #f5f5f5;
-    padding: 15px;
-    display: inline-block;
-    border: none;
-    transition: all 0.4s ease 0s;
-  }
 `;
 
 class RequestLink extends React.Component {
-  state = { redirectLocation: '', randomSuffix: true, suffix: '', submitted: false, done: false };
+  state = { redirectLocation: '', randomSuffix: true, suffix: '', submitted: false, done: false, newUrl: '', errorMessage: '', typingTimeout: 0, typing: false, validSuffix: true };
 
   handleSubmit = async (event) => {
     event.preventDefault();
     this.setState({submitted: true})
-    let data = {}
+    let data;
     if (this.state.randomSuffix === true) {
       data = {redirectLocation: this.state.redirectLocation}
     } else {
       data = { redirectLocation: this.state.redirectLocation, suffix: this.state.suffix }
     }
-    const resp = await axios.post(`https://api.lil.sh/v1/create`, data);
-    this.props.onSubmit(resp.data);
-    this.setState({ redirectLocation: '' });
+    try {
+      const resp = await axios.post(`https://api.lil.sh/v1/create`, data);
+      this.setState({ redirectLocation: '', randomSuffix: true, suffix: '', done: true, newUrl: resp.data.newUrl });
+    } catch (e) {
+      this.setState({errorMessage: "Error: " + e.response.data.errorMessage, submitted: false})
+    }
   };
 
   handleCheck = async (event) => {
-    this.setState({uniqueSuffix: !this.state.randomSuffix});
+    this.setState({randomSuffix: !this.state.randomSuffix, validSuffix: true, suffix: "", errorMessage: ""});
+  }
+
+  checkSuffix = async () => {
+    if (this.state.suffix.length < 3) {
+      this.setState({validSuffix: false, errorMessage: "Suffix must be longer then 2 characters"})
+      return
+    }
+    const resp = await axios.get('https://api.lil.sh/v1/check', {params: {suffix: this.state.suffix}});
+    if (resp.data.exists === true) {
+      this.setState({validSuffix: false, errorMessage: "Suffix taken"})
+    } else {
+      this.setState({validSuffix: true})
+    }
+  }
+
+  changeSuffix = (event) => {
+    if (this.state.typingTimeout) {
+      this.setState({errorMessage: ""})
+      clearTimeout(this.state.typingTimeout);
+    }
+
+    this.setState({
+      suffix: event.target.value,
+      typing: false,
+      typingTimeout: setTimeout(this.checkSuffix, 500)
+    });
+
+  }
+
+  componentDidMount() {
+    loadReCaptcha("6LdnQr0ZAAAAAB-7wVzk2SVxb6JBcmZhj4jbOHG_");
   }
 
   render() {
     return (
       <div css={[RequestLinkStyle]}>
+        {
+          this.state.done ?
+            <Fragment>
+              <div className="yourlink-div"> your lil link <br/> <br/>
+              <a className="link-text" onClick={() => {navigator.clipboard.writeText(this.state.newUrl); store.addNotification({
+                message: "Copied to clipboard!",
+                type: "default",
+                insert: "top",
+                container: "top-right",
+                dismiss: {
+                  duration: 2000
+                }
+              });} }>{this.state.newUrl}</a> <br/>
+              <div className="make-another-div">
+                <Link to ='/info' >
+                  <button className="app-button" style={{marginRight: ".5rem"}}>info</button>
+                </Link>
+                <button className="app-button" style={{marginLeft: ".5rem"}} onClick={() => {this.setState({done: false, submitted: false })}}>make another</button>
+              </div>
+              </div>
+            </Fragment>  : <Fragment>
         {!this.state.submitted ?
-          <Fragment>
-            <form className="redirect-form" onSubmit={this.handleSubmit}>
+             <form className="redirect-form" onSubmit={this.handleSubmit}>
               <div className="redirect-location-div">
                 <label className="redirect-location-label">your link
                   <br/>
@@ -123,7 +117,7 @@ class RequestLink extends React.Component {
                       className="suffix-input"
                       type="text"
                       value={this.state.suffix}
-                      onChange={event => this.setState({ suffix: event.target.value })}
+                      onChange={this.changeSuffix}
                       required
                     /> </Fragment> }
                   </div>
@@ -131,18 +125,25 @@ class RequestLink extends React.Component {
               </div>
               <br/>
               <div className="generate-button-div">
-                <button className="generate-button">generate</button>
+                <button className="g-recaptcha app-button"
+                        data-sitekey="6LdnQr0ZAAAAAB-7wVzk2SVxb6JBcmZhj4jbOHG_"
+                        data-callback='onSubmit'
+                        data-action='submit' disabled={!this.state.validSuffix} className="app-button">generate</button>
               </div>
-            </form>
-          </Fragment> :
+              <br/>
+              <div className="error-message-div">
+                {this.state.errorMessage}
+              </div>
+            </form> :
           <div style={{ position: "fixed", top: "55%", left: "50%", transform: "translate(-50%, -50%)" }}>
             <BarLoader
               size={150}
-              color={"#ffffff"}
+              color={"#616161"}
               loading={true}
             />
           </div>
         }
+      </Fragment>}
       </div>
     );
   }

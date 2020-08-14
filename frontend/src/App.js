@@ -16,6 +16,7 @@ if (path) {
 }
 
 function App() {
+
   return (
     <ThemeProvider>
       <AppLayout>

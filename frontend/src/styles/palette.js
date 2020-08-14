@@ -1,6 +1,12 @@
 import { css } from '@emotion/core';
 
 export const palette = {
+  black: [
+    '#212121'
+  ],
+  white: [
+    '#f5f5f5'
+  ],
   gray: [
     '#fafafa',
     '#f5f5f5',
