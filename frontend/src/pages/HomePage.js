@@ -6,6 +6,7 @@ import ReactNotification from 'react-notifications-component'
 import 'react-notifications-component/dist/theme.css'
 import {useThemeContext} from "../contexts/ThemeContext";
 import { palette } from '../styles/palette';
+import media from '../styles/media';
 
 
 const HomePageStyle = (isLight) => css`
@@ -39,6 +40,31 @@ const HomePageStyle = (isLight) => css`
     padding: 12px 20px;
     color: ${isLight ? palette.white[0] : palette.black[0]};
     background-color: ${isLight ? palette.black[0] : palette.white[0]};
+  }
+  
+  ${media.medium} {
+    img {
+      margin: 2rem auto;
+      max-width: 70%;
+    }
+    
+    .redirect-location-input {
+      width: 30rem;
+    }
+  }
+  
+  ${media.xsmall} {
+    h1 {
+      font-size: 2.5rem;
+    }
+    img {
+      margin: 2rem auto;
+      max-width: 80%;
+    }
+    
+    .redirect-location-input {
+      width: 15rem;
+    }
   }
   
   .suffix-checkbox {
