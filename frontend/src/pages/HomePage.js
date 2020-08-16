@@ -28,7 +28,7 @@ const HomePageStyle = (isLight) => css`
   }
   
   .redirect-form {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
   }
 
   .redirect-location-input {
@@ -50,6 +50,7 @@ const HomePageStyle = (isLight) => css`
     
     .redirect-location-input {
       width: 30rem;
+      font-size: 1rem !important;
     }
   }
   
@@ -57,6 +58,7 @@ const HomePageStyle = (isLight) => css`
     h1 {
       font-size: 2.5rem;
     }
+    
     img {
       margin: 2rem auto;
       max-width: 80%;
@@ -64,6 +66,7 @@ const HomePageStyle = (isLight) => css`
     
     .redirect-location-input {
       width: 15rem;
+      font-size: 1rem !important;
     }
   }
   
