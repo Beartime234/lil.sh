@@ -62,6 +62,8 @@ class TestCreateApiFunctionWSuffix:
         assert create_api_function_w_suffix._is_suffix_valid() is True
         create_api_function_w_suffix.suffix = "\'sneaky"
         assert create_api_function_w_suffix._is_suffix_valid() is False
+        create_api_function_w_suffix.suffix = "base.redirect"
+        assert create_api_function_w_suffix._is_suffix_valid() is False
 
 
 @pytest.fixture(scope="class")

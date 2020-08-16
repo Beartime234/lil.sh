@@ -26,8 +26,13 @@ class RequestLink extends React.Component {
     try {
       const resp = await axios.post(`https://api.lil.sh/v1/create`, data);
       this.setState({ redirectLocation: '', randomSuffix: true, suffix: '', done: true, newUrl: resp.data.newUrl });
-    } catch (e) {
-      this.setState({errorMessage: "Error: " + e.response.data.errorMessage, submitted: false})
+    } catch (apiError) {
+      try {
+        this.setState({errorMessage: "Error: " + apiError.response.data.errorMessage, submitted: false})
+      }
+      catch (notApiError) {
+        this.setState({errorMessage: "Error: Internal Error", submitted: false})
+      }
     }
   };
 
@@ -73,7 +78,7 @@ class RequestLink extends React.Component {
           this.state.done ?
             <Fragment>
               <div className="yourlink-div"> your lil link <br/> <br/>
-              <a className="link-text" onClick={() => {navigator.clipboard.writeText(this.state.newUrl); store.addNotification({
+              <a className="link-text" onClick={() => {navigator.clipboard.writeText("https://" + this.state.newUrl); store.addNotification({
                 message: "Copied to clipboard!",
                 type: "default",
                 insert: "top",
