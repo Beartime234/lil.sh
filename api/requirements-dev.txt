@@ -1,6 +1,6 @@
 atomicwrites==1.4.0
 attrs==19.3.0
-aws-sam-translator==1.25.0
+aws-sam-translator==1.26.0
 aws-xray-sdk==2.6.0
 boto==2.49.0
 boto3==1.14.35
