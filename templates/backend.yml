@@ -39,7 +39,7 @@ Resources:
       LifecycleConfiguration:
         Rules:
           - Id: DisposeShortURLs31Days
-            ExpirationInDays: 31
+            ExpirationInDays: 730
             Prefix: surl
             Status: Enabled
       NotificationConfiguration:
