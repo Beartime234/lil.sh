@@ -54,7 +54,6 @@ const ErrorPage = () => {
     <div css={[ErrorPageStyle(isLight)]}>
       <h1>Information</h1>
       <ul>
-        <li>Links last 31 days from creation and then are deleted.</li>
         <li>You can use them anywhere.</li>
         <li>You can use them to link to anything.</li>
         <li>Be responsible. The site owner may terminate links if used irresponsibly.</li>
