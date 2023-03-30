@@ -1,7 +1,7 @@
 # lil.sh
 Open source AWS s3 link shortener. 
 
-You can visit the live site at https://lil.sh.
+The free version has been shut down due to misuse.
 
 ## Design
 
