@@ -11,7 +11,7 @@ cffi==1.14.2
 cfn-lint==0.35.1
 chardet==3.0.4
 colorama==0.4.3
-cryptography==3.2.1
+cryptography==41.0.7
 decorator==4.4.2
 docker==4.2.2
 docutils==0.16
