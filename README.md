@@ -7,7 +7,7 @@ The free version has been shut down due to misuse.
 
 lil.sh utilizes the ability to have a static website using the amazon [s3](https://aws.amazon.com/s3/) service and
 the ability to perform a 301 redirect using the metadata [x-amz-website-redirect-location](https://docs.aws.amazon.com/AmazonS3/latest/dev/how-to-page-redirect.html)
-to perform redirects. The idea is that you put a black object with that metadata into a static s3 website and
+to perform redirects. The idea is that you put a blank object with that metadata into a static s3 website and
 you have a link shortener!
 
 lil.sh then uses the AWS Api gateway for a way for users can create their own short urls by wrapping this method
